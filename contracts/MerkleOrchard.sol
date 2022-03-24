@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.4;
+pragma solidity 0.8.12;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
@@ -42,7 +42,7 @@ contract MerkleOrchard is ERC721Enumerable {
         channels[_channelId].reserves[_token] += _amount;
     }
 
-    function fundWithEth(uint256 _channelId) external payable {
+    function fundChannelWithEth(uint256 _channelId) external payable {
         channels[_channelId].reserves[address(0)] += msg.value;
     }
 
@@ -54,7 +54,6 @@ contract MerkleOrchard is ERC721Enumerable {
         channels[_channelId].merkleRoot = _merkleRoot;
     }
 
-    // TODO support ETH
     function claim(uint256 _channelId, address _receiver, address _token, uint256 _cumalativeAmount, bytes32[] calldata _proof) external {
         Channel storage channel = channels[_channelId];
 
