@@ -1683,7 +1683,7 @@ __metadata:
     ethereum-waffle: ^3.4.0
     ethers: ^5.5.4
     fs-extra: ^10.0.0
-    hardhat: ^2.8.4
+    hardhat: ^2.9.1
     hardhat-gas-reporter: ^1.0.8
     husky: ^7.0.4
     lint-staged: ^12.3.4
@@ -8141,9 +8141,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"hardhat@npm:^2.8.4":
-  version: 2.8.4
-  resolution: "hardhat@npm:2.8.4"
+"hardhat@npm:^2.9.1":
+  version: 2.9.2
+  resolution: "hardhat@npm:2.9.2"
   dependencies:
     "@ethereumjs/block": ^3.6.0
     "@ethereumjs/blockchain": ^5.5.0
@@ -8153,11 +8153,12 @@ fsevents@~2.1.1:
     "@ethersproject/abi": ^5.1.2
     "@metamask/eth-sig-util": ^4.0.0
     "@sentry/node": ^5.18.1
-    "@solidity-parser/parser": ^0.14.0
+    "@solidity-parser/parser": ^0.14.1
     "@types/bn.js": ^5.1.0
     "@types/lru-cache": ^5.1.0
     abort-controller: ^3.0.0
     adm-zip: ^0.4.16
+    aggregate-error: ^3.0.0
     ansi-escapes: ^4.3.0
     chalk: ^2.4.2
     chokidar: ^3.4.0
@@ -8172,14 +8173,13 @@ fsevents@~2.1.1:
     fp-ts: 1.19.3
     fs-extra: ^7.0.1
     glob: ^7.1.3
-    https-proxy-agent: ^5.0.0
     immutable: ^4.0.0-rc.12
     io-ts: 1.10.4
     lodash: ^4.17.11
     merkle-patricia-tree: ^4.2.2
     mnemonist: ^0.38.0
-    mocha: ^7.2.0
-    node-fetch: ^2.6.0
+    mocha: ^9.2.0
+    p-map: ^4.0.0
     qs: ^6.7.0
     raw-body: ^2.4.1
     resolve: 1.17.0
@@ -8190,11 +8190,12 @@ fsevents@~2.1.1:
     stacktrace-parser: ^0.1.10
     true-case-path: ^2.2.1
     tsort: 0.0.1
+    undici: ^4.14.1
     uuid: ^8.3.2
     ws: ^7.4.6
   bin:
     hardhat: internal/cli/cli.js
-  checksum: 431f6df9c83dbc107458d45853d4bb2cc062f87d2d442f8dd4cd87df203ac4e5d66d13218d37a026eb12ea0f7b7eda4a677a2e93d8bc038f843cf278305c42a1
+  checksum: bbee86d43e85a7a841f8b6a6d7bc6609fa2f052db75cbc131eb40e770744f847ca5ed5211314219c90a375f065c987cfd79e0167bfd84c8b674aa2963c94f1a6
   languageName: node
   linkType: hard
 
@@ -10771,7 +10772,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"mocha@npm:^7.1.1, mocha@npm:^7.2.0":
+"mocha@npm:^7.1.1":
   version: 7.2.0
   resolution: "mocha@npm:7.2.0"
   dependencies:
@@ -14916,6 +14917,13 @@ typescript@^4.4.3:
   version: 1.9.1
   resolution: "underscore@npm:1.9.1"
   checksum: bee6f587661a6a9ca2f77e611896141e0287af51d8ca6034b11d0d4163ddbdd181a9720078ddbe94d265b7694f4880bc7f4c2ad260cfb8985ee2f9adcf13df03
+  languageName: node
+  linkType: hard
+
+"undici@npm:^4.14.1":
+  version: 4.16.0
+  resolution: "undici@npm:4.16.0"
+  checksum: 5e88c2b3381085e25ed1d1a308610ac7ee985f478ac705af7a8e03213536e10f73ef8dd8d85e6ed38948d1883fa0ae935e04357c317b0f5d3d3c0211d0c8c393
   languageName: node
   linkType: hard
 

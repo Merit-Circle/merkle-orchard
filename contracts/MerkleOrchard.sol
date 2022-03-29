@@ -22,7 +22,8 @@ contract MerkleOrchard is ERC721Enumerable {
         bytes32 merkleRoot;
     }
 
-    Channel[] public channels;
+    mapping(uint256 => Channel) public channels;
+
     uint256 public tokenIdCounter = 0;
 
     constructor(
@@ -71,7 +72,7 @@ contract MerkleOrchard is ERC721Enumerable {
         // Checks
         bytes32 leaf = keccak256(abi.encodePacked(_receiver, _token, _cumalativeAmount));
         if (!MerkleProof.verify(_proof, channel.merkleRoot, leaf)) {
-            revert NotOwnerError();
+            revert MerkleProofError();
         }
 
         // Effects
