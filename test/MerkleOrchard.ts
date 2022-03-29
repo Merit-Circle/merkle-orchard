@@ -14,7 +14,7 @@ describe("ERC721Module", function () {
   let account2: SignerWithAddress;
   let accounts: SignerWithAddress[];
   const tokens: MockToken[] = [];
-  let orchard: MerkleOrchard;
+  let merkleOrchardContract: MerkleOrchard;
   const TOKEN_COUNT = 5;
   const NAME = "NAME";
   const SYMBOL = "SYMBOL";
@@ -22,10 +22,11 @@ describe("ERC721Module", function () {
   const MINT_AMOUNT = parseEther("1000");
 
   const timeTraveler = new TimeTraveler(hre.network.provider);
+
   before(async () => {
     [deployer, account1, account2, ...accounts] = await hre.ethers.getSigners();
 
-    orchard = await new MerkleOrchard__factory(deployer).deploy(NAME, SYMBOL, BASE_TOKEN_URI);
+    merkleOrchardContract = await new MerkleOrchard__factory(deployer).deploy(NAME, SYMBOL, BASE_TOKEN_URI);
 
     // for(let i = 0; i < TOKEN_COUNT; i++) {
     //     let token = await (new MockToken__factory(deployer)).deploy()
@@ -40,7 +41,7 @@ describe("ERC721Module", function () {
 
     // await orchard.openChannel();
 
-    // await timeTraveler.snapshot();
+    await timeTraveler.snapshot();
   });
 
   beforeEach(async () => {
@@ -48,14 +49,37 @@ describe("ERC721Module", function () {
   });
 
   describe("openChannel", async () => {
-    it("should work", async () => {
-      // const balanceBefore = await orchard.balanceOf(account1.address);
-      // const totalSupplyBefore = await orchard.totalSupply();
-      // await orchard.openChannel();
-      // const balanceAfter = await orchard.balanceOf(account1.address);
-      // const totalSupplyAfter = await orchard.totalSupply();
-      // expect(balanceAfter).to.eq(balanceBefore.add(1));
-      // expect(totalSupplyAfter).to.eq(totalSupplyBefore.add(1));
+    it("increases balance and total supply when opening a channel for single one", async () => {
+      const balanceBefore = await merkleOrchardContract.balanceOf(account1.address);
+      const totalSupplyBefore = await merkleOrchardContract.totalSupply();
+
+      await merkleOrchardContract.connect(account1).openChannel();
+
+      expect(await merkleOrchardContract.balanceOf(account1.address)).to.eq(balanceBefore.add(1));
+      expect(await merkleOrchardContract.totalSupply()).to.eq(totalSupplyBefore.add(1));
+      expect(await merkleOrchardContract.ownerOf(0)).to.equal(account1.address);
+    });
+
+    it("increases total supply when opening multiple channels", async () => {
+      const totalSupplyBefore = await merkleOrchardContract.totalSupply();
+
+      await merkleOrchardContract.connect(account1).openChannel();
+      await merkleOrchardContract.connect(account2).openChannel();
+
+      expect(await merkleOrchardContract.totalSupply()).to.eq(totalSupplyBefore.add(2));
+      expect(await merkleOrchardContract.ownerOf(0)).to.equal(account1.address);
+      expect(await merkleOrchardContract.ownerOf(1)).to.equal(account2.address);
+    });
+
+    it("allows user to open multiple channels", async () => {
+      const balanceBefore = await merkleOrchardContract.balanceOf(account1.address);
+
+      await merkleOrchardContract.connect(account1).openChannel();
+      await merkleOrchardContract.connect(account1).openChannel();
+
+      expect(await merkleOrchardContract.balanceOf(account1.address)).to.eq(balanceBefore.add(2));
+      expect(await merkleOrchardContract.ownerOf(0)).to.equal(account1.address);
+      expect(await merkleOrchardContract.ownerOf(1)).to.equal(account1.address);
     });
   });
 
