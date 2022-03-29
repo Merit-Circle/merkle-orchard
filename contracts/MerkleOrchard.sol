@@ -23,6 +23,7 @@ contract MerkleOrchard is ERC721Enumerable {
     }
 
     Channel[] public channels;
+    uint256 public tokenIdCounter = 0;
 
     constructor(
         string memory _name,
