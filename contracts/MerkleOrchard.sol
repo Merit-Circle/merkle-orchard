@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+// solhint-disable-next-line
 // Inpsired by https://github.com/balancer-labs/balancer-v2-monorepo/blob/master/pkg/distributors/contracts/MerkleOrchard.sol
 
 contract MerkleOrchard is ERC721Enumerable {
@@ -84,6 +85,7 @@ contract MerkleOrchard is ERC721Enumerable {
         // Interactions
         // IF ETH
         if (_token == address(0)) {
+            // solhint-disable-next-line
             payable(_receiver).call{ value: withdrawAmount }("");
             return;
         }
