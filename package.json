@@ -1,10 +1,10 @@
 {
-  "name": "@paulrberg/solidity-template",
-  "description": "Template for writing Solidity smart contracts",
+  "name": "@merit-circle/merkle-orchard",
+  "description": "Merkle Orchard contract for anyone to plant their Merkle Tree Airdrops",
   "version": "1.0.0",
   "author": {
-    "name": "Paul Razvan Berg",
-    "url": "https://paulrberg.com"
+    "name": "Merit Circle Team",
+    "url": "https://meritcircle.io/"
   },
   "devDependencies": {
     "@codechecks/client": "^0.1.12",
