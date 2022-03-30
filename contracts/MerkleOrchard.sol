@@ -37,7 +37,11 @@ contract MerkleOrchard is ERC721Enumerable {
     }
 
     // TODO support ETH
-    function fundChannel(uint256 _channelId, address _token, uint256 _amount) external {
+    function fundChannel(
+        uint256 _channelId,
+        address _token,
+        uint256 _amount
+    ) external {
         IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
         channels[_channelId].reserves[_token] += _amount;
     }
@@ -47,19 +51,25 @@ contract MerkleOrchard is ERC721Enumerable {
     }
 
     function setMerkleRoot(uint256 _channelId, bytes32 _merkleRoot) external {
-        if(ownerOf(_channelId) != msg.sender) {
+        if (ownerOf(_channelId) != msg.sender) {
             revert NotOwnerError();
         }
 
         channels[_channelId].merkleRoot = _merkleRoot;
     }
 
-    function claim(uint256 _channelId, address _receiver, address _token, uint256 _cumalativeAmount, bytes32[] calldata _proof) external {
+    function claim(
+        uint256 _channelId,
+        address _receiver,
+        address _token,
+        uint256 _cumalativeAmount,
+        bytes32[] calldata _proof
+    ) external {
         Channel storage channel = channels[_channelId];
 
         // Checks
         bytes32 leaf = keccak256(abi.encodePacked(_receiver, _token, _cumalativeAmount));
-         if(!MerkleProof.verify(_proof, channel.merkleRoot, leaf)) {
+        if (!MerkleProof.verify(_proof, channel.merkleRoot, leaf)) {
             revert NotOwnerError();
         }
 
@@ -71,7 +81,7 @@ contract MerkleOrchard is ERC721Enumerable {
 
         // Interactions
         // IF ETH
-        if(_token == address(0)) {
+        if (_token == address(0)) {
             payable(_receiver).call{ value: withdrawAmount }("");
             return;
         }
