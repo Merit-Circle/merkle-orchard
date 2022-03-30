@@ -1,6 +1,6 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import hre, { network } from "hardhat";
+import hre from "hardhat";
 import TimeTraveler from "../utils/TimeTraveler";
 import { parseEther } from "@ethersproject/units";
 import ChannelMerkleTree from "../utils/ChannelMerkleTree";
@@ -27,7 +27,7 @@ describe("ERC721Module", function () {
   const timeTraveler = new TimeTraveler(hre.network.provider);
 
   before(async () => {
-    [deployer, account1, account2, ...accounts] = await hre.ethers.getSigners();
+    [deployer, account1, account2, ...accounts] = await hre.ethers.getSigners(); // eslint-disable-line
 
     merkleOrchardContract = await new MerkleOrchard__factory(deployer).deploy(NAME, SYMBOL, BASE_TOKEN_URI);
 
@@ -255,7 +255,7 @@ describe("ERC721Module", function () {
     });
   });
 
-  describe("fundChannel", async () => {});
+  // describe("fundChannel", async () => {});
 
-  describe("fundChannelWithEth", async () => {});
+  // describe("fundChannelWithEth", async () => {});
 });
