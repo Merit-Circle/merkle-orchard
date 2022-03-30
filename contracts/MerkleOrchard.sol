@@ -5,11 +5,12 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./IMerkleOrchard.sol";
 
 // solhint-disable-next-line
 // Inpsired by https://github.com/balancer-labs/balancer-v2-monorepo/blob/master/pkg/distributors/contracts/MerkleOrchard.sol
 
-contract MerkleOrchard is ERC721Enumerable {
+contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
     using SafeERC20 for IERC20;
     string internal baseTokenURI;
 
