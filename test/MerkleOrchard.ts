@@ -7,7 +7,7 @@ import ChannelMerkleTree from "../utils/ChannelMerkleTree";
 
 import { MerkleOrchard, MerkleOrchard__factory, MockToken, MockToken__factory } from "../src/types";
 
-import { constants, utils } from "ethers";
+import { constants, ethers, utils } from "ethers";
 
 describe("ERC721Module", function () {
   let deployer: SignerWithAddress;
@@ -280,6 +280,28 @@ describe("ERC721Module", function () {
       expect(await tokenContracts[0].balanceOf(account1.address)).to.eq(clientBalanceBefore.add(50));
     });
 
+    it("claims entire eth reserves", async () => {
+      const merkleTree = new ChannelMerkleTree([
+        {
+          address: account1.address,
+          token: constants.AddressZero,
+          cumulativeAmount: 50,
+        },
+      ]);
+
+      await merkleOrchardContract.openChannel();
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+
+      const proof = merkleTree.getProof(account1.address, constants.AddressZero, 50);
+
+      const clientBalanceBefore = await account1.getBalance();
+
+      await merkleOrchardContract.connect(account2).fundChannelWithEth(0, { value: 50 });
+      await merkleOrchardContract.claim(0, account1.address, constants.AddressZero, 50, proof);
+
+      expect(await account1.getBalance()).to.eq(clientBalanceBefore.add(50));
+    });
+
     it("reverts when claiming more than reserves", async () => {
       const merkleTree = new ChannelMerkleTree([
         {
@@ -505,6 +527,55 @@ describe("ERC721Module", function () {
     });
   });
 
+  describe("fundChannelWithEth", async () => {
+    it("funds a new channel", async () => {
+      await merkleOrchardContract.connect(account1).openChannel();
+
+      const balaceBeforeFund = await account1.getBalance();
+      const fundAmount = ethers.utils.parseEther("1.0");
+
+      await merkleOrchardContract.connect(account1).fundChannelWithEth(0, { value: fundAmount });
+
+      expect(await merkleOrchardContract.getChannelReservesByToken(0, constants.AddressZero)).to.eq(fundAmount);
+      expect(parseFloat(ethers.utils.formatEther(await account1.getBalance()))).to.be.lessThan(
+        parseFloat(ethers.utils.formatEther(balaceBeforeFund.sub(fundAmount))),
+      );
+    });
+
+    it("funds an existing channel", async () => {
+      await merkleOrchardContract.connect(account1).openChannel();
+      await merkleOrchardContract.connect(account2).openChannel();
+
+      const fundAmount = ethers.utils.parseEther("1.0");
+
+      await merkleOrchardContract.connect(account1).fundChannelWithEth(1, { value: fundAmount });
+      await merkleOrchardContract.connect(account2).fundChannelWithEth(1, { value: fundAmount });
+
+      expect(await merkleOrchardContract.getChannelReservesByToken(1, constants.AddressZero)).to.eq(fundAmount.mul(2));
+      expect(await merkleOrchardContract.getChannelReservesByToken(0, constants.AddressZero)).to.eq(0);
+    });
+
+    it("reverts if first channel does not exist", async () => {
+      const fundAmount = ethers.utils.parseEther("1.0");
+
+      await expect(
+        merkleOrchardContract.connect(account1).fundChannelWithEth(0, { value: fundAmount }),
+      ).to.be.revertedWith("NonExistentTokenError()");
+    });
+
+    it("reverts if channel does not exist", async () => {
+      const fundAmount = ethers.utils.parseEther("1.0");
+
+      await merkleOrchardContract.openChannel();
+
+      await expect(merkleOrchardContract.connect(account1).fundChannelWithEth(0, { value: fundAmount })).not.to.be
+        .reverted;
+      await expect(
+        merkleOrchardContract.connect(account1).fundChannelWithEth(1, { value: fundAmount }),
+      ).to.be.revertedWith("NonExistentTokenError()");
+    });
+  });
+
   describe("fundChannel", async () => {
     it("funds a new channel", async () => {
       await merkleOrchardContract.connect(account1).openChannel();
@@ -541,6 +612,4 @@ describe("ERC721Module", function () {
       ).to.be.revertedWith("NonExistentTokenError()");
     });
   });
-
-  // describe("fundChannelWithEth", async () => {});
 });

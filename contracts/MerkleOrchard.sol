@@ -58,6 +58,10 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
     }
 
     function fundChannelWithEth(uint256 _channelId) external payable {
+        if (_channelId >= totalSupply()) {
+            revert NonExistentTokenError();
+        }
+
         channels[_channelId].reserves[address(0)] += msg.value;
     }
 
