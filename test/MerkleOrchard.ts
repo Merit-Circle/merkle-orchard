@@ -7,7 +7,7 @@ import ChannelMerkleTree from "../utils/ChannelMerkleTree";
 
 import { MerkleOrchard, MerkleOrchard__factory, MockToken, MockToken__factory } from "../src/types";
 
-import { constants, utils } from "ethers";
+import { constants, ethers, utils } from "ethers";
 
 describe("ERC721Module", function () {
   let deployer: SignerWithAddress;
@@ -37,6 +37,10 @@ describe("ERC721Module", function () {
 
       await tokenContract.mint(account1.address, MINT_AMOUNT);
       tokenContract = tokenContract.connect(account1);
+      await tokenContract.approve(merkleOrchardContract.address, constants.MaxUint256);
+
+      await tokenContract.mint(account2.address, MINT_AMOUNT);
+      tokenContract = tokenContract.connect(account2);
       await tokenContract.approve(merkleOrchardContract.address, constants.MaxUint256);
     }
 
@@ -91,7 +95,7 @@ describe("ERC721Module", function () {
       await merkleOrchardContract.connect(account1).openChannel();
       await merkleOrchardContract.connect(account1).setMerkleRoot(0, newRoot);
 
-      expect(await merkleOrchardContract.channels(0)).to.eq(newRoot);
+      expect(await merkleOrchardContract.getMerkleRoot(0)).to.eq(newRoot);
     });
 
     it("sets multiple merkle roots", async () => {
@@ -104,8 +108,8 @@ describe("ERC721Module", function () {
       await merkleOrchardContract.connect(account1).openChannel();
       await merkleOrchardContract.connect(account1).setMerkleRoot(1, newRoot2);
 
-      expect(await merkleOrchardContract.channels(0)).to.eq(newRoot);
-      expect(await merkleOrchardContract.channels(1)).to.eq(newRoot2);
+      expect(await merkleOrchardContract.getMerkleRoot(0)).to.eq(newRoot);
+      expect(await merkleOrchardContract.getMerkleRoot(1)).to.eq(newRoot2);
     });
 
     it("fails if setting merkle root of not owned channel", async () => {
@@ -253,9 +257,359 @@ describe("ERC721Module", function () {
         merkleOrchardContract.claim(1, account2.address, tokenContracts[0].address, 100, proof),
       ).to.be.revertedWith("MerkleProofError()");
     });
+
+    it("claims entire reserves", async () => {
+      const merkleTree = new ChannelMerkleTree([
+        {
+          address: account1.address,
+          token: tokenContracts[0].address,
+          cumulativeAmount: 50,
+        },
+      ]);
+
+      await merkleOrchardContract.openChannel();
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+
+      const proof = merkleTree.getProof(account1.address, tokenContracts[0].address, 50);
+
+      const clientBalanceBefore = await tokenContracts[0].balanceOf(account1.address);
+
+      await merkleOrchardContract.connect(account2).fundChannel(0, tokenContracts[0].address, 50);
+      await merkleOrchardContract.claim(0, account1.address, tokenContracts[0].address, 50, proof);
+
+      expect(await tokenContracts[0].balanceOf(account1.address)).to.eq(clientBalanceBefore.add(50));
+    });
+
+    it("claims entire eth reserves", async () => {
+      const merkleTree = new ChannelMerkleTree([
+        {
+          address: account1.address,
+          token: constants.AddressZero,
+          cumulativeAmount: 50,
+        },
+      ]);
+
+      await merkleOrchardContract.openChannel();
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+
+      const proof = merkleTree.getProof(account1.address, constants.AddressZero, 50);
+
+      const clientBalanceBefore = await account1.getBalance();
+
+      await merkleOrchardContract.connect(account2).fundChannelWithEth(0, { value: 50 });
+      await merkleOrchardContract.claim(0, account1.address, constants.AddressZero, 50, proof);
+
+      expect(await account1.getBalance()).to.eq(clientBalanceBefore.add(50));
+    });
+
+    it("reverts when claiming more than reserves", async () => {
+      const merkleTree = new ChannelMerkleTree([
+        {
+          address: account1.address,
+          token: tokenContracts[0].address,
+          cumulativeAmount: 100,
+        },
+      ]);
+
+      await merkleOrchardContract.openChannel();
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+
+      const proof = merkleTree.getProof(account1.address, tokenContracts[0].address, 100);
+
+      const clientBalanceBefore = await tokenContracts[0].balanceOf(account1.address);
+
+      await merkleOrchardContract.connect(account2).fundChannel(0, tokenContracts[0].address, 50);
+      await expect(merkleOrchardContract.claim(0, account1.address, tokenContracts[0].address, 100, proof)).to.be
+        .reverted;
+
+      expect(await tokenContracts[0].balanceOf(account1.address)).to.eq(clientBalanceBefore);
+    });
+
+    it("reverts when multiple clients try claiming", async () => {
+      const merkleTree = new ChannelMerkleTree([
+        {
+          address: account1.address,
+          token: tokenContracts[0].address,
+          cumulativeAmount: 100,
+        },
+        {
+          address: accounts[0].address,
+          token: tokenContracts[0].address,
+          cumulativeAmount: 100,
+        },
+      ]);
+
+      await merkleOrchardContract.openChannel();
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+
+      const proof = merkleTree.getProof(account1.address, tokenContracts[0].address, 100);
+      const proof2 = merkleTree.getProof(account1.address, tokenContracts[0].address, 100);
+
+      const clientBalanceBefore = await tokenContracts[0].balanceOf(account1.address);
+      const clientBalanceBefore2 = await tokenContracts[0].balanceOf(accounts[0].address);
+
+      await merkleOrchardContract.connect(account2).fundChannel(0, tokenContracts[0].address, 100);
+      await merkleOrchardContract.claim(0, account1.address, tokenContracts[0].address, 100, proof2);
+
+      await expect(merkleOrchardContract.claim(0, accounts[0].address, tokenContracts[0].address, 100, proof)).to.be
+        .reverted;
+
+      expect(await tokenContracts[0].balanceOf(account1.address)).to.eq(clientBalanceBefore.add(100));
+      expect(await tokenContracts[0].balanceOf(accounts[0].address)).to.eq(clientBalanceBefore2);
+    });
+
+    it("does not allow cumulativeBalance to be exceeded", async () => {
+      const merkleTree = new ChannelMerkleTree([
+        {
+          address: account1.address,
+          token: tokenContracts[0].address,
+          cumulativeAmount: 100,
+        },
+      ]);
+
+      const clientBalanceBefore = await tokenContracts[0].balanceOf(account1.address);
+
+      await merkleOrchardContract.openChannel();
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+
+      const proof = merkleTree.getProof(account1.address, tokenContracts[0].address, 100);
+
+      await merkleOrchardContract.connect(account2).fundChannel(0, tokenContracts[0].address, 100);
+      await merkleOrchardContract.claim(0, account1.address, tokenContracts[0].address, 100, proof);
+
+      const clientBalanceAfterFirstClaim = await tokenContracts[0].balanceOf(account1.address);
+
+      expect(clientBalanceAfterFirstClaim).to.eq(clientBalanceBefore.add(100));
+
+      await merkleOrchardContract.connect(account2).fundChannel(0, tokenContracts[0].address, 100);
+      await merkleOrchardContract.claim(0, account1.address, tokenContracts[0].address, 100, proof);
+
+      expect(await tokenContracts[0].balanceOf(account1.address)).to.eq(clientBalanceAfterFirstClaim);
+      expect(await merkleOrchardContract.getChannelReservesByToken(0, tokenContracts[0].address)).to.eq(100);
+    });
+
+    it("does correctly claim after merkleTree update", async () => {
+      const merkleTree = new ChannelMerkleTree([
+        {
+          address: account1.address,
+          token: tokenContracts[0].address,
+          cumulativeAmount: 100,
+        },
+      ]);
+
+      await merkleOrchardContract.openChannel();
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+      await merkleOrchardContract.connect(account2).fundChannel(0, tokenContracts[0].address, 100);
+
+      const clientBalanceBefore = await tokenContracts[0].balanceOf(account1.address);
+      const proof = merkleTree.getProof(account1.address, tokenContracts[0].address, 100);
+
+      await merkleOrchardContract.claim(0, account1.address, tokenContracts[0].address, 100, proof);
+
+      const clientBalanceAfterFirstClaim = await tokenContracts[0].balanceOf(account1.address);
+
+      expect(clientBalanceAfterFirstClaim).to.eq(clientBalanceBefore.add(100));
+      expect(await merkleOrchardContract.getChannelReservesByToken(0, tokenContracts[0].address)).to.eq(0);
+
+      const merkleTree2 = new ChannelMerkleTree([
+        {
+          address: account1.address,
+          token: tokenContracts[0].address,
+          cumulativeAmount: 150,
+        },
+      ]);
+
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree2.merkleTree.getRoot());
+      await merkleOrchardContract.connect(account2).fundChannel(0, tokenContracts[0].address, 100);
+
+      const proof2 = merkleTree2.getProof(account1.address, tokenContracts[0].address, 150);
+      await merkleOrchardContract.claim(0, account1.address, tokenContracts[0].address, 150, proof2);
+
+      expect(await tokenContracts[0].balanceOf(account1.address)).to.eq(clientBalanceAfterFirstClaim.add(50));
+      expect(await merkleOrchardContract.getChannelReservesByToken(0, tokenContracts[0].address)).to.eq(50);
+    });
+
+    it("reverts when cumulativeAmount is lowered in new merkle tree while it has been filled", async () => {
+      const merkleTree = new ChannelMerkleTree([
+        {
+          address: account1.address,
+          token: tokenContracts[0].address,
+          cumulativeAmount: 100,
+        },
+      ]);
+
+      await merkleOrchardContract.openChannel();
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+      await merkleOrchardContract.connect(account2).fundChannel(0, tokenContracts[0].address, 100);
+      expect(await merkleOrchardContract.getChannelReservesByToken(0, tokenContracts[0].address)).to.eq(100);
+
+      const clientBalanceBefore = await tokenContracts[0].balanceOf(account1.address);
+      const proof = merkleTree.getProof(account1.address, tokenContracts[0].address, 100);
+
+      await merkleOrchardContract.claim(0, account1.address, tokenContracts[0].address, 100, proof);
+
+      const clientBalanceAfterFirstClaim = await tokenContracts[0].balanceOf(account1.address);
+
+      expect(clientBalanceAfterFirstClaim).to.eq(clientBalanceBefore.add(100));
+      expect(await merkleOrchardContract.getChannelReservesByToken(0, tokenContracts[0].address)).to.eq(0);
+
+      const merkleTree2 = new ChannelMerkleTree([
+        {
+          address: account1.address,
+          token: tokenContracts[0].address,
+          cumulativeAmount: 50,
+        },
+      ]);
+
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree2.merkleTree.getRoot());
+      await merkleOrchardContract.connect(account2).fundChannel(0, tokenContracts[0].address, 100);
+
+      const proof2 = merkleTree2.getProof(account1.address, tokenContracts[0].address, 50);
+      await expect(merkleOrchardContract.claim(0, account1.address, tokenContracts[0].address, 50, proof2)).to.be
+        .reverted;
+
+      expect(await tokenContracts[0].balanceOf(account1.address)).to.eq(clientBalanceAfterFirstClaim);
+      expect(await merkleOrchardContract.getChannelReservesByToken(0, tokenContracts[0].address)).to.eq(100);
+    });
+
+    it("reverts if withdrawAmount results in negative reserve", async () => {
+      const merkleTree = new ChannelMerkleTree([
+        {
+          address: account1.address,
+          token: tokenContracts[0].address,
+          cumulativeAmount: 100,
+        },
+        {
+          address: accounts[0].address,
+          token: tokenContracts[0].address,
+          cumulativeAmount: 100,
+        },
+      ]);
+
+      await merkleOrchardContract.openChannel();
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+
+      const proof = merkleTree.getProof(account1.address, tokenContracts[0].address, 100);
+
+      const clientBalanceBefore = await tokenContracts[0].balanceOf(account1.address);
+      const clientBalanceBefore2 = await tokenContracts[0].balanceOf(accounts[0].address);
+
+      await merkleOrchardContract.connect(account2).fundChannel(0, tokenContracts[0].address, 100);
+      await merkleOrchardContract.claim(0, account1.address, tokenContracts[0].address, 100, proof);
+
+      expect(await tokenContracts[0].balanceOf(account1.address)).to.eq(clientBalanceBefore.add(100));
+      expect(await merkleOrchardContract.getChannelReservesByToken(0, tokenContracts[0].address)).to.eq(0);
+
+      await merkleOrchardContract.connect(account2).fundChannel(0, tokenContracts[0].address, 20);
+
+      const merkleTree2 = new ChannelMerkleTree([
+        {
+          address: account1.address,
+          token: tokenContracts[0].address,
+          cumulativeAmount: 120,
+        },
+        {
+          address: accounts[0].address,
+          token: tokenContracts[0].address,
+          cumulativeAmount: 120,
+        },
+      ]);
+
+      await merkleOrchardContract.openChannel();
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree2.merkleTree.getRoot());
+
+      const proof2 = merkleTree2.getProof(accounts[0].address, tokenContracts[0].address, 120);
+
+      // tests channel.reserves[_token] -= withdrawAmount;
+      await expect(merkleOrchardContract.claim(0, accounts[0].address, tokenContracts[0].address, 120, proof2)).to.be
+        .reverted;
+      expect(await tokenContracts[0].balanceOf(accounts[0].address)).to.eq(clientBalanceBefore2);
+    });
   });
 
-  // describe("fundChannel", async () => {});
+  describe("fundChannelWithEth", async () => {
+    it("funds a new channel", async () => {
+      await merkleOrchardContract.connect(account1).openChannel();
 
-  // describe("fundChannelWithEth", async () => {});
+      const balaceBeforeFund = await account1.getBalance();
+      const fundAmount = ethers.utils.parseEther("1.0");
+
+      await merkleOrchardContract.connect(account1).fundChannelWithEth(0, { value: fundAmount });
+
+      expect(await merkleOrchardContract.getChannelReservesByToken(0, constants.AddressZero)).to.eq(fundAmount);
+      expect(parseFloat(ethers.utils.formatEther(await account1.getBalance()))).to.be.lessThan(
+        parseFloat(ethers.utils.formatEther(balaceBeforeFund.sub(fundAmount))),
+      );
+    });
+
+    it("funds an existing channel", async () => {
+      await merkleOrchardContract.connect(account1).openChannel();
+      await merkleOrchardContract.connect(account2).openChannel();
+
+      const fundAmount = ethers.utils.parseEther("1.0");
+
+      await merkleOrchardContract.connect(account1).fundChannelWithEth(1, { value: fundAmount });
+      await merkleOrchardContract.connect(account2).fundChannelWithEth(1, { value: fundAmount });
+
+      expect(await merkleOrchardContract.getChannelReservesByToken(1, constants.AddressZero)).to.eq(fundAmount.mul(2));
+      expect(await merkleOrchardContract.getChannelReservesByToken(0, constants.AddressZero)).to.eq(0);
+    });
+
+    it("reverts if first channel does not exist", async () => {
+      const fundAmount = ethers.utils.parseEther("1.0");
+
+      await expect(
+        merkleOrchardContract.connect(account1).fundChannelWithEth(0, { value: fundAmount }),
+      ).to.be.revertedWith("NonExistentTokenError()");
+    });
+
+    it("reverts if channel does not exist", async () => {
+      const fundAmount = ethers.utils.parseEther("1.0");
+
+      await merkleOrchardContract.openChannel();
+
+      await expect(merkleOrchardContract.connect(account1).fundChannelWithEth(0, { value: fundAmount })).not.to.be
+        .reverted;
+      await expect(
+        merkleOrchardContract.connect(account1).fundChannelWithEth(1, { value: fundAmount }),
+      ).to.be.revertedWith("NonExistentTokenError()");
+    });
+  });
+
+  describe("fundChannel", async () => {
+    it("funds a new channel", async () => {
+      await merkleOrchardContract.connect(account1).openChannel();
+
+      await merkleOrchardContract.connect(account1).fundChannel(0, tokenContracts[0].address, 100);
+
+      expect(await merkleOrchardContract.getChannelReservesByToken(0, tokenContracts[0].address)).to.eq(100);
+    });
+
+    it("funds an existing channel", async () => {
+      await merkleOrchardContract.connect(account1).openChannel();
+      await merkleOrchardContract.connect(account2).openChannel();
+
+      await merkleOrchardContract.connect(account1).fundChannel(1, tokenContracts[0].address, 100);
+      await merkleOrchardContract.connect(account2).fundChannel(1, tokenContracts[0].address, 100);
+
+      expect(await merkleOrchardContract.getChannelReservesByToken(1, tokenContracts[0].address)).to.eq(200);
+      expect(await merkleOrchardContract.getChannelReservesByToken(0, tokenContracts[0].address)).to.eq(0);
+    });
+
+    it("reverts if first channel does not exist", async () => {
+      await expect(
+        merkleOrchardContract.connect(account1).fundChannel(0, tokenContracts[0].address, 100),
+      ).to.be.revertedWith("NonExistentTokenError()");
+    });
+
+    it("reverts if channel does not exist", async () => {
+      await merkleOrchardContract.openChannel();
+
+      await expect(merkleOrchardContract.connect(account1).fundChannel(0, tokenContracts[0].address, 100)).not.to.be
+        .reverted;
+      await expect(
+        merkleOrchardContract.connect(account1).fundChannel(1, tokenContracts[0].address, 100),
+      ).to.be.revertedWith("NonExistentTokenError()");
+    });
+  });
 });

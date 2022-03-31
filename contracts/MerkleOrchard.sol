@@ -16,6 +16,7 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
 
     error MerkleProofError();
     error NotOwnerError();
+    error NonExistentTokenError();
 
     struct Channel {
         mapping(address => uint256) reserves;
@@ -25,8 +26,6 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
     }
 
     mapping(uint256 => Channel) public channels;
-
-    uint256 public tokenIdCounter = 0;
 
     constructor(
         string memory _name,
@@ -46,11 +45,23 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
         address _token,
         uint256 _amount
     ) external {
+        if (_channelId >= totalSupply()) {
+            revert NonExistentTokenError();
+        }
+
         IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
         channels[_channelId].reserves[_token] += _amount;
     }
 
+    function getChannelReservesByToken(uint256 _channelId, address _token) public view returns (uint256) {
+        return channels[_channelId].reserves[_token];
+    }
+
     function fundChannelWithEth(uint256 _channelId) external payable {
+        if (_channelId >= totalSupply()) {
+            revert NonExistentTokenError();
+        }
+
         channels[_channelId].reserves[address(0)] += msg.value;
     }
 
@@ -62,6 +73,11 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
         channels[_channelId].merkleRoot = _merkleRoot;
     }
 
+    function getMerkleRoot(uint256 _channelId) public view returns (bytes32) {
+        return channels[_channelId].merkleRoot;
+    }
+
+    // @dev claim entire balance of channel
     function claim(
         uint256 _channelId,
         address _receiver,
