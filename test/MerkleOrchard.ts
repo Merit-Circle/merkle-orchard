@@ -129,9 +129,9 @@ describe("ERC721Module", function () {
 
       await merkleOrchardContract.connect(account1).openChannel();
 
-      await expect(merkleOrchardContract.connect(account1).setMerkleRoot(0, newRoot))
-        .to.emit(merkleOrchardContract, "MerkleRootSet")
-        .withArgs(0, newRoot);
+      await expect(merkleOrchardContract.connect(account1).setMerkleRoot(0, newRoot, PLACE_HOLDER_IPFSHASH))
+        .to.emit(merkleOrchardContract, "MerkleRootUpdated")
+        .withArgs(0, newRoot, PLACE_HOLDER_IPFSHASH);
     });
   });
 
@@ -548,7 +548,7 @@ describe("ERC721Module", function () {
       ]);
 
       await merkleOrchardContract.openChannel();
-      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot(), PLACE_HOLDER_IPFSHASH);
 
       const proof = merkleTree.getProof(account1.address, tokenContracts[0].address, 50);
 
