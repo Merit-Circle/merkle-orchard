@@ -128,8 +128,8 @@ describe("ERC721Module", function () {
       await merkleOrchardContract.connect(account1).openChannel();
 
       await expect(merkleOrchardContract.connect(account1).setMerkleRoot(0, newRoot))
-      .to.emit(merkleOrchardContract, "MerkleRootSet")
-      .withArgs(0, newRoot);
+        .to.emit(merkleOrchardContract, "MerkleRootSet")
+        .withArgs(0, newRoot);
     });
   });
 
@@ -552,8 +552,8 @@ describe("ERC721Module", function () {
 
       await merkleOrchardContract.connect(account2).fundChannel(0, tokenContracts[0].address, 50);
       await expect(merkleOrchardContract.claim(0, account1.address, tokenContracts[0].address, 50, proof))
-      .to.emit(merkleOrchardContract, "TokenClaimed")
-      .withArgs(0, account1.address, tokenContracts[0].address);
+        .to.emit(merkleOrchardContract, "TokenClaimed")
+        .withArgs(0, account1.address, tokenContracts[0].address);
     });
   });
 
@@ -611,9 +611,9 @@ describe("ERC721Module", function () {
       const fundAmount = ethers.utils.parseEther("1.0");
 
       await expect(merkleOrchardContract.connect(account1).fundChannelWithEth(0, { value: fundAmount }))
-      .to.emit(merkleOrchardContract, "ChannelFundedWithETH")
-      .withArgs(0);
-    })
+        .to.emit(merkleOrchardContract, "ChannelFundedWithETH")
+        .withArgs(0);
+    });
   });
 
   describe("fundChannel", async () => {
@@ -656,8 +656,8 @@ describe("ERC721Module", function () {
       await merkleOrchardContract.connect(account1).openChannel();
 
       await expect(merkleOrchardContract.connect(account1).fundChannel(0, tokenContracts[0].address, 100))
-      .to.emit(merkleOrchardContract, "ChannelFunded")
-      .withArgs(0, tokenContracts[0].address);
+        .to.emit(merkleOrchardContract, "ChannelFunded")
+        .withArgs(0, tokenContracts[0].address);
     });
   });
 });

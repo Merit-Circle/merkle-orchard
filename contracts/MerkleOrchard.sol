@@ -22,7 +22,7 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
     event ChannelFundedWithETH(uint256 indexed channelId);
     event MerkleRootSet(uint256 indexed channelId, bytes32 indexed merkleRoot);
     event TokenClaimed(uint256 indexed channelId, address indexed receiver, address indexed token);
-    
+
     struct Channel {
         mapping(address => uint256) reserves;
         // token => account => amount
