@@ -539,7 +539,7 @@ describe("ERC721Module", function () {
       await merkleOrchardContract.connect(account1).fundChannelWithEth(0, { value: fundAmount });
 
       expect(await merkleOrchardContract.getChannelReservesByToken(0, constants.AddressZero)).to.eq(fundAmount);
-      expect(parseFloat(ethers.utils.formatEther(await account1.getBalance()))).to.be.lessThan(
+      expect(parseFloat(ethers.utils.formatEther(await account1.getBalance()))).to.be.lessThanOrEqual(
         parseFloat(ethers.utils.formatEther(balaceBeforeFund.sub(fundAmount))),
       );
     });
