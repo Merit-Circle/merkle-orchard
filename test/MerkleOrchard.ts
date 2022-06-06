@@ -9,6 +9,8 @@ import { MerkleOrchard, MerkleOrchard__factory, MockToken, MockToken__factory } 
 
 import { constants, ethers, utils } from "ethers";
 
+const PLACE_HOLDER_IPFSHASH = "❤️❤️❤️";
+
 describe("ERC721Module", function () {
   let deployer: SignerWithAddress;
   let account1: SignerWithAddress;
@@ -93,7 +95,7 @@ describe("ERC721Module", function () {
       const newRoot = "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0";
 
       await merkleOrchardContract.connect(account1).openChannel();
-      await merkleOrchardContract.connect(account1).setMerkleRoot(0, newRoot);
+      await merkleOrchardContract.connect(account1).setMerkleRoot(0, newRoot, PLACE_HOLDER_IPFSHASH);
 
       expect(await merkleOrchardContract.getMerkleRoot(0)).to.eq(newRoot);
     });
@@ -103,10 +105,10 @@ describe("ERC721Module", function () {
       const newRoot2 = "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff2";
 
       await merkleOrchardContract.connect(account1).openChannel();
-      await merkleOrchardContract.connect(account1).setMerkleRoot(0, newRoot);
+      await merkleOrchardContract.connect(account1).setMerkleRoot(0, newRoot, PLACE_HOLDER_IPFSHASH);
 
       await merkleOrchardContract.connect(account1).openChannel();
-      await merkleOrchardContract.connect(account1).setMerkleRoot(1, newRoot2);
+      await merkleOrchardContract.connect(account1).setMerkleRoot(1, newRoot2, PLACE_HOLDER_IPFSHASH);
 
       expect(await merkleOrchardContract.getMerkleRoot(0)).to.eq(newRoot);
       expect(await merkleOrchardContract.getMerkleRoot(1)).to.eq(newRoot2);
@@ -117,7 +119,7 @@ describe("ERC721Module", function () {
 
       await merkleOrchardContract.connect(account1).openChannel();
 
-      await expect(merkleOrchardContract.connect(account2).setMerkleRoot(0, newRoot)).to.be.revertedWith(
+      await expect(merkleOrchardContract.connect(account2).setMerkleRoot(0, newRoot, PLACE_HOLDER_IPFSHASH)).to.be.revertedWith(
         "NotOwnerError()",
       );
     });
@@ -134,7 +136,7 @@ describe("ERC721Module", function () {
       ]);
 
       await merkleOrchardContract.openChannel();
-      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot(), PLACE_HOLDER_IPFSHASH);
 
       const incorrectProof = ["0x6c00000000000000000000000000000000000000000000000000000000000000"];
 
@@ -158,7 +160,7 @@ describe("ERC721Module", function () {
       ]);
 
       await merkleOrchardContract.openChannel();
-      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot(), PLACE_HOLDER_IPFSHASH);
 
       const incorrectProof = ["0x6c00000000000000000000000000000000000000000000000000000000000000"];
 
@@ -182,7 +184,7 @@ describe("ERC721Module", function () {
       ]);
 
       await merkleOrchardContract.openChannel();
-      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot(), PLACE_HOLDER_IPFSHASH);
 
       await expect(
         merkleOrchardContract.claim(
@@ -205,7 +207,7 @@ describe("ERC721Module", function () {
       ]);
 
       await merkleOrchardContract.openChannel();
-      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot(), PLACE_HOLDER_IPFSHASH);
 
       const proof = merkleTree.getProof(account1.address, tokenContracts[0].address, 100);
 
@@ -242,10 +244,10 @@ describe("ERC721Module", function () {
       ]);
 
       await merkleOrchardContract.openChannel();
-      await merkleOrchardContract.setMerkleRoot(0, merkleTree1.merkleTree.getRoot());
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree1.merkleTree.getRoot(), PLACE_HOLDER_IPFSHASH);
 
       await merkleOrchardContract.openChannel();
-      await merkleOrchardContract.setMerkleRoot(1, merkleTree2.merkleTree.getRoot());
+      await merkleOrchardContract.setMerkleRoot(1, merkleTree2.merkleTree.getRoot(), PLACE_HOLDER_IPFSHASH);
 
       const proof = merkleTree1.getProof(account1.address, tokenContracts[0].address, 100);
 
@@ -268,7 +270,7 @@ describe("ERC721Module", function () {
       ]);
 
       await merkleOrchardContract.openChannel();
-      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot(), PLACE_HOLDER_IPFSHASH);
 
       const proof = merkleTree.getProof(account1.address, tokenContracts[0].address, 50);
 
@@ -290,7 +292,7 @@ describe("ERC721Module", function () {
       ]);
 
       await merkleOrchardContract.openChannel();
-      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot(), PLACE_HOLDER_IPFSHASH);
 
       const proof = merkleTree.getProof(account1.address, constants.AddressZero, 50);
 
@@ -312,7 +314,7 @@ describe("ERC721Module", function () {
       ]);
 
       await merkleOrchardContract.openChannel();
-      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot(), PLACE_HOLDER_IPFSHASH);
 
       const proof = merkleTree.getProof(account1.address, tokenContracts[0].address, 100);
 
@@ -340,7 +342,7 @@ describe("ERC721Module", function () {
       ]);
 
       await merkleOrchardContract.openChannel();
-      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot(), PLACE_HOLDER_IPFSHASH);
 
       const proof = merkleTree.getProof(account1.address, tokenContracts[0].address, 100);
       const proof2 = merkleTree.getProof(account1.address, tokenContracts[0].address, 100);
@@ -370,7 +372,7 @@ describe("ERC721Module", function () {
       const clientBalanceBefore = await tokenContracts[0].balanceOf(account1.address);
 
       await merkleOrchardContract.openChannel();
-      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot(), PLACE_HOLDER_IPFSHASH);
 
       const proof = merkleTree.getProof(account1.address, tokenContracts[0].address, 100);
 
@@ -398,7 +400,7 @@ describe("ERC721Module", function () {
       ]);
 
       await merkleOrchardContract.openChannel();
-      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot(), PLACE_HOLDER_IPFSHASH);
       await merkleOrchardContract.connect(account2).fundChannel(0, tokenContracts[0].address, 100);
 
       const clientBalanceBefore = await tokenContracts[0].balanceOf(account1.address);
@@ -419,7 +421,7 @@ describe("ERC721Module", function () {
         },
       ]);
 
-      await merkleOrchardContract.setMerkleRoot(0, merkleTree2.merkleTree.getRoot());
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree2.merkleTree.getRoot(), PLACE_HOLDER_IPFSHASH);
       await merkleOrchardContract.connect(account2).fundChannel(0, tokenContracts[0].address, 100);
 
       const proof2 = merkleTree2.getProof(account1.address, tokenContracts[0].address, 150);
@@ -439,7 +441,7 @@ describe("ERC721Module", function () {
       ]);
 
       await merkleOrchardContract.openChannel();
-      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot(), PLACE_HOLDER_IPFSHASH);
       await merkleOrchardContract.connect(account2).fundChannel(0, tokenContracts[0].address, 100);
       expect(await merkleOrchardContract.getChannelReservesByToken(0, tokenContracts[0].address)).to.eq(100);
 
@@ -461,7 +463,7 @@ describe("ERC721Module", function () {
         },
       ]);
 
-      await merkleOrchardContract.setMerkleRoot(0, merkleTree2.merkleTree.getRoot());
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree2.merkleTree.getRoot(), PLACE_HOLDER_IPFSHASH);
       await merkleOrchardContract.connect(account2).fundChannel(0, tokenContracts[0].address, 100);
 
       const proof2 = merkleTree2.getProof(account1.address, tokenContracts[0].address, 50);
@@ -487,7 +489,7 @@ describe("ERC721Module", function () {
       ]);
 
       await merkleOrchardContract.openChannel();
-      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot(), PLACE_HOLDER_IPFSHASH);
 
       const proof = merkleTree.getProof(account1.address, tokenContracts[0].address, 100);
 
@@ -516,7 +518,7 @@ describe("ERC721Module", function () {
       ]);
 
       await merkleOrchardContract.openChannel();
-      await merkleOrchardContract.setMerkleRoot(0, merkleTree2.merkleTree.getRoot());
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree2.merkleTree.getRoot(), PLACE_HOLDER_IPFSHASH);
 
       const proof2 = merkleTree2.getProof(accounts[0].address, tokenContracts[0].address, 120);
 

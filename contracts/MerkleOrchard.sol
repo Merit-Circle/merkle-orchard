@@ -18,6 +18,8 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
     error NotOwnerError();
     error NonExistentTokenError();
 
+    event MerkleRootUpdated(uint256 indexed channelId, bytes32 indexed merkleRoot, string indexed ipfsHash);
+
     struct Channel {
         mapping(address => uint256) reserves;
         // token => account => amount
@@ -65,12 +67,14 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
         channels[_channelId].reserves[address(0)] += msg.value;
     }
 
-    function setMerkleRoot(uint256 _channelId, bytes32 _merkleRoot) external {
+    function setMerkleRoot(uint256 _channelId, bytes32 _merkleRoot, string memory _ipfsHash) external {
         if (ownerOf(_channelId) != msg.sender) {
             revert NotOwnerError();
         }
 
         channels[_channelId].merkleRoot = _merkleRoot;
+
+        emit MerkleRootUpdated(_channelId, _merkleRoot, _ipfsHash);
     }
 
     function getMerkleRoot(uint256 _channelId) public view returns (bytes32) {
