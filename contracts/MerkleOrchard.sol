@@ -18,7 +18,11 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
     error NotOwnerError();
     error NonExistentTokenError();
 
+
     event MerkleRootUpdated(uint256 indexed channelId, bytes32 indexed merkleRoot, string indexed ipfsHash);
+    event ChannelFunded(uint256 indexed channelId, address indexed token);
+    event ChannelFundedWithETH(uint256 indexed channelId);
+    event TokenClaimed(uint256 indexed channelId, address indexed receiver, address indexed token);
 
     struct Channel {
         mapping(address => uint256) reserves;
@@ -53,6 +57,7 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
 
         IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
         channels[_channelId].reserves[_token] += _amount;
+        emit ChannelFunded(_channelId, _token);
     }
 
     function getChannelReservesByToken(uint256 _channelId, address _token) public view returns (uint256) {
@@ -65,6 +70,7 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
         }
 
         channels[_channelId].reserves[address(0)] += msg.value;
+        emit ChannelFundedWithETH(_channelId);
     }
 
     function setMerkleRoot(
@@ -77,7 +83,6 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
         }
 
         channels[_channelId].merkleRoot = _merkleRoot;
-
         emit MerkleRootUpdated(_channelId, _merkleRoot, _ipfsHash);
     }
 
@@ -112,9 +117,10 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
         if (_token == address(0)) {
             // solhint-disable-next-line
             payable(_receiver).call{ value: withdrawAmount }("");
-            return;
+        } else {
+            IERC20(_token).safeTransfer(_receiver, withdrawAmount);
         }
-        IERC20(_token).safeTransfer(_receiver, withdrawAmount);
+        emit TokenClaimed(_channelId, _receiver, _token);
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
