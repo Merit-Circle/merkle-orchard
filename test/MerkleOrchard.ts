@@ -121,6 +121,16 @@ describe("ERC721Module", function () {
         "NotOwnerError()",
       );
     });
+
+    it("should emit merkle root set event correctly", async () => {
+      const newRoot = "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0";
+
+      await merkleOrchardContract.connect(account1).openChannel();
+
+      await expect(merkleOrchardContract.connect(account1).setMerkleRoot(0, newRoot))
+      .to.emit(merkleOrchardContract, "MerkleRootSet")
+      .withArgs(0, newRoot);
+    });
   });
 
   describe("claim", async () => {
@@ -525,6 +535,26 @@ describe("ERC721Module", function () {
         .reverted;
       expect(await tokenContracts[0].balanceOf(accounts[0].address)).to.eq(clientBalanceBefore2);
     });
+
+    it("should emit token claimed event correctly", async () => {
+      const merkleTree = new ChannelMerkleTree([
+        {
+          address: account1.address,
+          token: tokenContracts[0].address,
+          cumulativeAmount: 50,
+        },
+      ]);
+
+      await merkleOrchardContract.openChannel();
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot());
+
+      const proof = merkleTree.getProof(account1.address, tokenContracts[0].address, 50);
+
+      await merkleOrchardContract.connect(account2).fundChannel(0, tokenContracts[0].address, 50);
+      await expect(merkleOrchardContract.claim(0, account1.address, tokenContracts[0].address, 50, proof))
+      .to.emit(merkleOrchardContract, "TokenClaimed")
+      .withArgs(0, account1.address, tokenContracts[0].address);
+    });
   });
 
   describe("fundChannelWithEth", async () => {
@@ -574,6 +604,16 @@ describe("ERC721Module", function () {
         merkleOrchardContract.connect(account1).fundChannelWithEth(1, { value: fundAmount }),
       ).to.be.revertedWith("NonExistentTokenError()");
     });
+
+    it("should emit channel funded with ETH event correctly", async () => {
+      await merkleOrchardContract.connect(account1).openChannel();
+
+      const fundAmount = ethers.utils.parseEther("1.0");
+
+      await expect(merkleOrchardContract.connect(account1).fundChannelWithEth(0, { value: fundAmount }))
+      .to.emit(merkleOrchardContract, "ChannelFundedWithETH")
+      .withArgs(0);
+    })
   });
 
   describe("fundChannel", async () => {
@@ -610,6 +650,14 @@ describe("ERC721Module", function () {
       await expect(
         merkleOrchardContract.connect(account1).fundChannel(1, tokenContracts[0].address, 100),
       ).to.be.revertedWith("NonExistentTokenError()");
+    });
+
+    it("should emit channel funded event correctly", async () => {
+      await merkleOrchardContract.connect(account1).openChannel();
+
+      await expect(merkleOrchardContract.connect(account1).fundChannel(0, tokenContracts[0].address, 100))
+      .to.emit(merkleOrchardContract, "ChannelFunded")
+      .withArgs(0, tokenContracts[0].address);
     });
   });
 });

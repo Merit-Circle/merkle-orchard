@@ -78,7 +78,7 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
         }
 
         channels[_channelId].merkleRoot = _merkleRoot;
-        emit MerkleRootSet(channelId, merkleRoot);
+        emit MerkleRootSet(_channelId, _merkleRoot);
     }
 
     function getMerkleRoot(uint256 _channelId) public view returns (bytes32) {
