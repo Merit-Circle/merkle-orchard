@@ -67,7 +67,11 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
         channels[_channelId].reserves[address(0)] += msg.value;
     }
 
-    function setMerkleRoot(uint256 _channelId, bytes32 _merkleRoot, string memory _ipfsHash) external {
+    function setMerkleRoot(
+        uint256 _channelId,
+        bytes32 _merkleRoot,
+        string memory _ipfsHash
+    ) external {
         if (ownerOf(_channelId) != msg.sender) {
             revert NotOwnerError();
         }

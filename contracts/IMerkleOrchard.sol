@@ -12,7 +12,11 @@ interface IMerkleOrchard is IERC721Enumerable {
 
     function fundChannelWithEth(uint256 _channelId) external payable;
 
-    function setMerkleRoot(uint256 _channelId, bytes32 _merkleRoot, string memory _ipfsHash) external;
+    function setMerkleRoot(
+        uint256 _channelId,
+        bytes32 _merkleRoot,
+        string memory _ipfsHash
+    ) external;
 
     function claim(
         uint256 _channelId,

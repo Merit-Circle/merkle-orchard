@@ -119,9 +119,9 @@ describe("ERC721Module", function () {
 
       await merkleOrchardContract.connect(account1).openChannel();
 
-      await expect(merkleOrchardContract.connect(account2).setMerkleRoot(0, newRoot, PLACE_HOLDER_IPFSHASH)).to.be.revertedWith(
-        "NotOwnerError()",
-      );
+      await expect(
+        merkleOrchardContract.connect(account2).setMerkleRoot(0, newRoot, PLACE_HOLDER_IPFSHASH),
+      ).to.be.revertedWith("NotOwnerError()");
     });
   });
 
