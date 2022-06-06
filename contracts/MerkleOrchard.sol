@@ -18,7 +18,6 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
     error NotOwnerError();
     error NonExistentTokenError();
 
-
     event MerkleRootUpdated(uint256 indexed channelId, bytes32 indexed merkleRoot, string indexed ipfsHash);
     event ChannelFunded(uint256 indexed channelId, address indexed token);
     event ChannelFundedWithETH(uint256 indexed channelId);
