@@ -17,6 +17,7 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
     error MerkleProofError();
     error NotOwnerError();
     error NonExistentTokenError();
+    error CallNotSuccessfulError();
 
     event MerkleRootUpdated(uint256 indexed channelId, bytes32 indexed merkleRoot, string indexed ipfsHash);
     event ChannelFunded(uint256 indexed channelId, address indexed token);
@@ -115,7 +116,10 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
         // IF ETH
         if (_token == address(0)) {
             // solhint-disable-next-line
-            payable(_receiver).call{ value: withdrawAmount }("");
+            (bool success, ) = payable(_receiver).call{ value: withdrawAmount }("");
+            if (!success) {
+                revert CallNotSuccessfulError();
+            }
         } else {
             IERC20(_token).safeTransfer(_receiver, withdrawAmount);
         }

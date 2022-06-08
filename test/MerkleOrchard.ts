@@ -155,6 +155,26 @@ describe("ERC721Module", function () {
       ).to.be.revertedWith("MerkleProofError()");
     });
 
+    it("Fails when ETH transfer fails on claim", async () => {
+      const merkleTree = new ChannelMerkleTree([
+        {
+          address: merkleOrchardContract.address,
+          token: constants.AddressZero,
+          cumulativeAmount: 50,
+        },
+      ]);
+
+      await merkleOrchardContract.openChannel();
+      await merkleOrchardContract.setMerkleRoot(0, merkleTree.merkleTree.getRoot(), PLACE_HOLDER_IPFSHASH);
+
+      const proof = merkleTree.getProof(merkleOrchardContract.address, constants.AddressZero, 50);
+
+      await merkleOrchardContract.connect(account2).fundChannelWithEth(0, { value: 50 });
+      await expect(
+        merkleOrchardContract.claim(0, merkleOrchardContract.address, constants.AddressZero, 50, proof),
+      ).to.be.revertedWith("CallNotSuccessfulError()");
+    });
+
     it("fails if incorrect merkle proof with multiple entries", async () => {
       const merkleTree = new ChannelMerkleTree([
         {
