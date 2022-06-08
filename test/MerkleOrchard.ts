@@ -155,7 +155,7 @@ describe("ERC721Module", function () {
       ).to.be.revertedWith("MerkleProofError()");
     });
 
-    it("Fails when ETH transfer fails on claim", async() => {
+    it("Fails when ETH transfer fails on claim", async () => {
       const merkleTree = new ChannelMerkleTree([
         {
           address: merkleOrchardContract.address,
@@ -170,8 +170,10 @@ describe("ERC721Module", function () {
       const proof = merkleTree.getProof(merkleOrchardContract.address, constants.AddressZero, 50);
 
       await merkleOrchardContract.connect(account2).fundChannelWithEth(0, { value: 50 });
-      await expect(merkleOrchardContract.claim(0, merkleOrchardContract.address, constants.AddressZero, 50, proof)).to.be.revertedWith("CallNotSuccessfulError()");
-    })
+      await expect(
+        merkleOrchardContract.claim(0, merkleOrchardContract.address, constants.AddressZero, 50, proof),
+      ).to.be.revertedWith("CallNotSuccessfulError()");
+    });
 
     it("fails if incorrect merkle proof with multiple entries", async () => {
       const merkleTree = new ChannelMerkleTree([
