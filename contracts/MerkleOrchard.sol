@@ -95,21 +95,21 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
         uint256 _channelId,
         address _receiver,
         address _token,
-        uint256 _cumalativeAmount,
+        uint256 _cumulativeAmount,
         bytes32[] calldata _proof
     ) external {
         Channel storage channel = channels[_channelId];
 
         // Checks
-        bytes32 leaf = keccak256(abi.encodePacked(_receiver, _token, _cumalativeAmount));
+        bytes32 leaf = keccak256(abi.encodePacked(_receiver, _token, _cumulativeAmount));
         if (!MerkleProof.verify(_proof, channel.merkleRoot, leaf)) {
             revert MerkleProofError();
         }
 
         // Effects
         uint256 withdrawnPreviously = channel.withdraws[_token][_receiver];
-        uint256 withdrawAmount = _cumalativeAmount - withdrawnPreviously;
-        channel.withdraws[_token][_receiver] = _cumalativeAmount;
+        uint256 withdrawAmount = _cumulativeAmount - withdrawnPreviously;
+        channel.withdraws[_token][_receiver] = _cumulativeAmount;
         channel.reserves[_token] -= withdrawAmount;
 
         // Interactions
