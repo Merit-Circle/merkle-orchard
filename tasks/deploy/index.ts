@@ -1,5 +1,4 @@
 import { task } from "hardhat/config";
-import { MerkleOrchard__factory } from "../../src/types";
 import { sleep } from "../../utils/sleep";
 
 const VERIFY_DELAY = 100000;
@@ -11,9 +10,10 @@ task("deploy")
   .addFlag("verify")
   .setAction(async (taskArgs, { ethers, run }) => {
     const signers = await ethers.getSigners();
-    const merkleOrchardFactory = new MerkleOrchard__factory(signers[0]);
-
-    const merkleOrchard = await merkleOrchardFactory.deploy(taskArgs.name, taskArgs.symbol, taskArgs.basetokenuri);
+    const merkleOrchardFactory = await ethers.getContractFactory("MerkleOrchard");
+    const merkleOrchard = await merkleOrchardFactory
+      .connect(signers[0])
+      .deploy(taskArgs.name, taskArgs.symbol, taskArgs.basetokenuri);
 
     console.log(`MerkleOrchard deployed at: ${merkleOrchard.address}`);
 
