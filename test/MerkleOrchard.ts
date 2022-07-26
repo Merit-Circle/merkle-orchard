@@ -584,7 +584,7 @@ describe("ERC721Module", function () {
       await merkleOrchardContract.openChannel();
 
       await expect(merkleOrchardContract.connect(account2).fundChannelWithEth(0)).to.be.revertedWith(
-        "ZeroFundingError()"
+        "ZeroFundingError()",
       );
     });
 
@@ -650,9 +650,9 @@ describe("ERC721Module", function () {
     it("Fails when funding channel with 0 tokens", async () => {
       await merkleOrchardContract.connect(account1).openChannel();
 
-      await expect(merkleOrchardContract.connect(account1).fundChannel(0, tokenContracts[0].address, 0)).to.be.revertedWith(
-        "ZeroFundingError()"
-      )
+      await expect(
+        merkleOrchardContract.connect(account1).fundChannel(0, tokenContracts[0].address, 0),
+      ).to.be.revertedWith("ZeroFundingError()");
     });
 
     it("funds a new channel", async () => {
