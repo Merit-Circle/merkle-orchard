@@ -18,6 +18,7 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
     error NotOwnerError();
     error NonExistentTokenError();
     error CallNotSuccessfulError();
+    error ZeroFundingError();
 
     event MerkleRootUpdated(uint256 indexed channelId, bytes32 indexed merkleRoot, string indexed ipfsHash);
     event ChannelFunded(uint256 indexed channelId, address indexed token);
@@ -55,6 +56,10 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
             revert NonExistentTokenError();
         }
 
+        if (_amount == 0) {
+            revert ZeroFundingError();
+        }
+
         IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
         channels[_channelId].reserves[_token] += _amount;
         emit ChannelFunded(_channelId, _token);
@@ -67,6 +72,10 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
     function fundChannelWithEth(uint256 _channelId) external payable {
         if (_channelId >= totalSupply()) {
             revert NonExistentTokenError();
+        }
+
+        if (msg.value == 0) {
+            revert ZeroFundingError();
         }
 
         channels[_channelId].reserves[address(0)] += msg.value;
