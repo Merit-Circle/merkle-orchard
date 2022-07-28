@@ -45,7 +45,6 @@ contract MerkleOrchard is ERC721Enumerable, IMerkleOrchard {
         _mint(msg.sender, totalSupply());
     }
 
-    // TODO support ETH
     function fundChannel(
         uint256 _channelId,
         address _token,
