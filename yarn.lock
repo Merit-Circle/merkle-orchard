@@ -1566,6 +1566,7 @@ __metadata:
     "@nomiclabs/hardhat-etherscan": ^3.0.0
     "@nomiclabs/hardhat-waffle": ^2.0.2
     "@openzeppelin/contracts": ^4.5.0
+    "@pinata/sdk": ^1.1.26
     "@typechain/ethers-v5": ^9.0.0
     "@typechain/hardhat": ^4.0.0
     "@types/chai": ^4.3.0
@@ -1701,6 +1702,19 @@ __metadata:
   version: 4.5.0
   resolution: "@openzeppelin/contracts@npm:4.5.0"
   checksum: 1c9c5dff041905771d2a83ac29c64dbf0b48603de43f74a34fb1358813d7c7bf259efe2f64e2112b410c5cca7a0b41aaedd882368be5f01a6d50a3ee0740f962
+  languageName: node
+  linkType: hard
+
+"@pinata/sdk@npm:^1.1.26":
+  version: 1.1.26
+  resolution: "@pinata/sdk@npm:1.1.26"
+  dependencies:
+    axios: ^0.21.1
+    base-path-converter: ^1.0.2
+    form-data: ^2.3.3
+    is-ipfs: ^0.6.0
+    recursive-fs: ^1.1.2
+  checksum: 8b67fa2b634360db6555c8acbc40cf002056fc01475265aa6815b0c7d58e869aa138fc7cb1b279aedf3301cf66b1a19547c3f23f1e4333625287e8f11719b5d4
   languageName: node
   linkType: hard
 
@@ -3058,6 +3072,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios@npm:^0.21.1":
+  version: 0.21.4
+  resolution: "axios@npm:0.21.4"
+  dependencies:
+    follow-redirects: ^1.14.0
+  checksum: 44245f24ac971e7458f3120c92f9d66d1fc695e8b97019139de5b0cc65d9b8104647db01e5f46917728edfc0cfd88eb30fc4c55e6053eef4ace76768ce95ff3c
+  languageName: node
+  linkType: hard
+
 "babel-code-frame@npm:^6.26.0":
   version: 6.26.0
   resolution: "babel-code-frame@npm:6.26.0"
@@ -3703,6 +3726,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"base-path-converter@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "base-path-converter@npm:1.0.2"
+  checksum: 9fca25198e4588ab46389426ee51b81d296000dbb132fe9228b90f93d0f89dead66468f63da37519e972c634c1ccfe136442c300b9762fb83265532cf2ac32e0
+  languageName: node
+  linkType: hard
+
 "base-x@npm:^3.0.2, base-x@npm:^3.0.8":
   version: 3.0.8
   resolution: "base-x@npm:3.0.8"
@@ -3982,7 +4012,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bs58@npm:^4.0.0":
+"bs58@npm:^4.0.0, bs58@npm:^4.0.1":
   version: 4.0.1
   resolution: "bs58@npm:4.0.1"
   dependencies:
@@ -4419,7 +4449,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cids@npm:^0.7.1":
+"cids@npm:^0.7.1, cids@npm:~0.7.0":
   version: 0.7.5
   resolution: "cids@npm:0.7.5"
   dependencies:
@@ -4429,6 +4459,19 @@ __metadata:
     multicodec: ^1.0.0
     multihashes: ~0.4.15
   checksum: 54aa031bef76b08a2c934237696a4af2cfc8afb5d2727cb39ab69f6ac142ef312b9a0c6070dc2b4be0a43076d8961339d8bf85287773c647b3d1d25ce203f325
+  languageName: node
+  linkType: hard
+
+"cids@npm:~0.8.0":
+  version: 0.8.3
+  resolution: "cids@npm:0.8.3"
+  dependencies:
+    buffer: ^5.6.0
+    class-is: ^1.1.0
+    multibase: ^1.0.0
+    multicodec: ^1.0.1
+    multihashes: ^1.0.1
+  checksum: ca4b18e421a6f5e446e63f296ad5c91b55bd4dd4880a78777857b2279460259946691d383928503c4381f0e05f998c7bfab5b6e623acc2d4d237571d99c53d9d
   languageName: node
   linkType: hard
 
@@ -7386,6 +7429,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"follow-redirects@npm:^1.14.0":
+  version: 1.15.1
+  resolution: "follow-redirects@npm:1.15.1"
+  peerDependenciesMeta:
+    debug:
+      optional: true
+  checksum: 6aa4e3e3cdfa3b9314801a1cd192ba756a53479d9d8cca65bf4db3a3e8834e62139245cd2f9566147c8dfe2efff1700d3e6aefd103de4004a7b99985e71dd533
+  languageName: node
+  linkType: hard
+
 "for-each@npm:^0.3.3, for-each@npm:~0.3.3":
   version: 0.3.3
   resolution: "for-each@npm:0.3.3"
@@ -7416,7 +7469,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"form-data@npm:^2.2.0":
+"form-data@npm:^2.2.0, form-data@npm:^2.3.3":
   version: 2.5.1
   resolution: "form-data@npm:2.5.1"
   dependencies:
@@ -8753,6 +8806,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"ip-regex@npm:^4.0.0":
+  version: 4.3.0
+  resolution: "ip-regex@npm:4.3.0"
+  checksum: 7ff904b891221b1847f3fdf3dbb3e6a8660dc39bc283f79eb7ed88f5338e1a3d1104b779bc83759159be266249c59c2160e779ee39446d79d4ed0890dfd06f08
+  languageName: node
+  linkType: hard
+
 "ip@npm:^1.1.5":
   version: 1.1.5
   resolution: "ip@npm:1.1.5"
@@ -9035,6 +9095,29 @@ fsevents@~2.1.1:
   version: 1.0.0
   resolution: "is-hex-prefixed@npm:1.0.0"
   checksum: 5ac58e6e528fb029cc43140f6eeb380fad23d0041cc23154b87f7c9a1b728bcf05909974e47248fd0b7fcc11ba33cf7e58d64804883056fabd23e2b898be41de
+  languageName: node
+  linkType: hard
+
+"is-ip@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "is-ip@npm:3.1.0"
+  dependencies:
+    ip-regex: ^4.0.0
+  checksum: da2c2b282407194adf2320bade0bad94be9c9d0bdab85ff45b1b62d8185f31c65dff3884519d57bf270277e5ea2046c7916a6e5a6db22fe4b7ddcdd3760f23eb
+  languageName: node
+  linkType: hard
+
+"is-ipfs@npm:^0.6.0":
+  version: 0.6.3
+  resolution: "is-ipfs@npm:0.6.3"
+  dependencies:
+    bs58: ^4.0.1
+    cids: ~0.7.0
+    mafmt: ^7.0.0
+    multiaddr: ^7.2.1
+    multibase: ~0.6.0
+    multihashes: ~0.4.13
+  checksum: 10670511dc954e56512449e38faae43b6b36f29dd0132911d951db6e988d6af9daa1f8fb54f16867a17540f0338050addb2a0c1ceba6482a059913031e441ee4
   languageName: node
   linkType: hard
 
@@ -10223,6 +10306,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"mafmt@npm:^7.0.0":
+  version: 7.1.0
+  resolution: "mafmt@npm:7.1.0"
+  dependencies:
+    multiaddr: ^7.3.0
+  checksum: 5d891f2007e99e6bee0b741b07f65ab81c4bce4a0baab08d97f2b34a72a0b7647e3b6a36a3377162adf56faed18be9a62bc772ef64a4f15e65ea4d034be705f0
+  languageName: node
+  linkType: hard
+
 "make-error@npm:^1.1.1":
   version: 1.3.6
   resolution: "make-error@npm:1.3.6"
@@ -10877,6 +10969,20 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"multiaddr@npm:^7.2.1, multiaddr@npm:^7.3.0":
+  version: 7.5.0
+  resolution: "multiaddr@npm:7.5.0"
+  dependencies:
+    buffer: ^5.5.0
+    cids: ~0.8.0
+    class-is: ^1.1.0
+    is-ip: ^3.1.0
+    multibase: ^0.7.0
+    varint: ^5.0.0
+  checksum: b1228f75af074f7797c37e5701c32732ccbb8828543d24f1a4b39a164c9407d8ae3a6783860fffd5956939d34acf21f76dae426c2dd6f5f598482c70eeae31cc
+  languageName: node
+  linkType: hard
+
 "multibase@npm:^0.7.0":
   version: 0.7.0
   resolution: "multibase@npm:0.7.0"
@@ -10884,6 +10990,16 @@ fsevents@~2.1.1:
     base-x: ^3.0.8
     buffer: ^5.5.0
   checksum: 3a520897d706b3064b59ddee286a9e1a5b35bb19bd830f93d7ddecdbf69fa46648c8fda0fec49a5d4640b8b7ac9d5fe360417d6de2906599aa535f55bf6b8e58
+  languageName: node
+  linkType: hard
+
+"multibase@npm:^1.0.0, multibase@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "multibase@npm:1.0.1"
+  dependencies:
+    base-x: ^3.0.8
+    buffer: ^5.5.0
+  checksum: 5d34398f81dca137aafe65a171ed5d637cf789bebb4fd33e11c186bfecbe6435a3d4f5c0cf15282607215ccc3a55ff4150a42067e7bc7756a42554e5fbc6d0d5
   languageName: node
   linkType: hard
 
@@ -10906,7 +11022,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"multicodec@npm:^1.0.0":
+"multicodec@npm:^1.0.0, multicodec@npm:^1.0.1":
   version: 1.0.4
   resolution: "multicodec@npm:1.0.4"
   dependencies:
@@ -10916,7 +11032,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"multihashes@npm:^0.4.15, multihashes@npm:~0.4.15":
+"multihashes@npm:^0.4.15, multihashes@npm:~0.4.13, multihashes@npm:~0.4.15":
   version: 0.4.21
   resolution: "multihashes@npm:0.4.21"
   dependencies:
@@ -10924,6 +11040,17 @@ fsevents@~2.1.1:
     multibase: ^0.7.0
     varint: ^5.0.0
   checksum: 688731560cf7384e899dc75c0da51e426eb7d058c5ea5eb57b224720a1108deb8797f1cd7f45599344d512d2877de99dd6a7b7773a095812365dea4ffe6ebd4c
+  languageName: node
+  linkType: hard
+
+"multihashes@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "multihashes@npm:1.0.1"
+  dependencies:
+    buffer: ^5.6.0
+    multibase: ^1.0.1
+    varint: ^5.0.0
+  checksum: 21e338dfb23900f7c038ac708fab598b33bc3d8d02f636ff753969c575b934f979dec76936ca142c6fd126a8bd030f7f391a44a3681c92cab28311c8b0b70589
   languageName: node
   linkType: hard
 
@@ -12436,6 +12563,16 @@ fsevents@~2.1.1:
   dependencies:
     resolve: ^1.1.6
   checksum: fe76bf9c21875ac16e235defedd7cbd34f333c02a92546142b7911a0f7c7059d2e16f441fe6fb9ae203f459c05a31b2bcf26202896d89e390eda7514d5d2702b
+  languageName: node
+  linkType: hard
+
+"recursive-fs@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "recursive-fs@npm:1.1.2"
+  bin:
+    recursive-copy: ./bin/recursive-copy
+    recursive-delete: ./bin/recursive-delete
+  checksum: 6b330d2e6b1359b179736c77ecdf64cc98e778fde676ca7b39b3ea6045dbab4d659d625ffb45e1c31871e8ee2c9bc73f9cf72f661baecf1053677614ceef0989
   languageName: node
   linkType: hard
 

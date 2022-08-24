@@ -6,6 +6,7 @@ import "solidity-coverage";
 
 import "./tasks/accounts";
 import "./tasks/deploy";
+import "./tasks/merkle";
 
 import { resolve } from "path";
 
