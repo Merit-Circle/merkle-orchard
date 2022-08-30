@@ -4,6 +4,33 @@ TBD
 
 ## Usage
 
+### Generating random drops for testing
+
+```sh
+npx hardhat generate-dummy-amounts --output output2.json --tokens 0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000001,0x0000000000000000000000000000000000000002
+```
+
+### Generate cumalative amounts from previous drops
+
+```sh
+npx hardhat generate-cummalitive-amounts --prev prev.json --new new.json --output cummalative.json
+```
+
+### Generating merle tree files
+
+```sh
+# Seperate files for each address
+npx hardhat generate-merkle-tree --input output.json --output tree --seperate
+# One file with all the proofs
+npx hardhat generate-merkle-tree --input output.json --output tree
+```
+
+### Uploading to ipfs through pinata
+```sh
+npx hardhat pinata-pin --input ./tree --pinata-key PINATA_KEY --pinata-secret PINATA_SECRET
+```
+
+
 ### Pre Requisites
 
 Before running any command, you need to create a `.env` file and set a BIP-39 compatible mnemonic as an environment
